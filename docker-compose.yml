@@ -1,0 +1,32 @@
+version: '2'
+
+services:
+  dashboard:
+    build: ./kit_dashboard
+    volumes:
+      - ./kit_dashboard:/usr/src/kit_dashboard
+    ports:
+      - '8000:8000'
+    command: 'npm run start-development'
+
+  api:
+    build: ./kit_api
+    volumes:
+      - ./kit_api:/usr/src/kit_api
+    ports:
+      - '5000:5000'
+    command: 'npm run start-development'
+
+  postgres:
+    image: postgres:9.5.4
+    environment:
+      POSTGRES_USER: youmustfight
+      POSTGRES_PASSWORD: leschampselysees
+      POSTGRES_DB: kit_local
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+volumes:
+  postgres:

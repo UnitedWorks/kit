@@ -1,0 +1,36 @@
+{
+  "containerDefinitions": [
+    {
+      "name": "nginx",
+      "image": "188711547141.dkr.ecr.us-east-1.amazonaws.com/kit_dashboard/nginx",
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "hostPort": 80
+        }
+      ],
+      "links": ["dashboard:dashboard"],
+      "volumesFrom": [
+        {
+          "sourceContainer": "dashboard"
+        }
+      ],
+      "cpu": 256,
+      "memory": 100
+    },
+    {
+      "name": "dashboard",
+      "image": "188711547141.dkr.ecr.us-east-1.amazonaws.com/kit_dashboard/dashboard",
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "hostPort": 8000
+        }
+      ],
+      "cpu": 768,
+      "memory": 300,
+      "environment": []
+    }
+  ],
+  "family": "dashboard"
+}

@@ -1,0 +1,18 @@
+{
+    "cluster": "kit_production",
+    "serviceName": "dashboard",
+    "taskDefinition": "dashboard",
+    "loadBalancers": [
+        {
+            "loadBalancerName": "kit-dashboard",
+            "containerName": "nginx",
+            "containerPort": 80
+        }
+    ],
+    "role": "ecsServiceRole",
+    "desiredCount": 2,
+    "deploymentConfiguration": {
+        "maximumPercent": 100,
+        "minimumHealthyPercent": 50
+    }
+}

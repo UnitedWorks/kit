@@ -1,0 +1,30 @@
+{
+  "containerDefinitions": [
+    {
+      "name": "nginx",
+      "image": "188711547141.dkr.ecr.us-east-1.amazonaws.com/kit_api/nginx",
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "hostPort": 80
+        }
+      ],
+      "links": ["api:api"],
+      "cpu": 256,
+      "memory": 100
+    },
+    {
+      "name": "api",
+      "image": "188711547141.dkr.ecr.us-east-1.amazonaws.com/kit_api/api",
+      "portMappings": [
+        {
+          "containerPort": 5000,
+          "hostPort": 5000
+        }
+      ],
+      "cpu": 768,
+      "memory": 300
+    }
+  ],
+  "family": "api"
+}

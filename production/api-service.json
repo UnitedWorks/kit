@@ -1,0 +1,18 @@
+{
+    "cluster": "kit_production",
+    "serviceName": "api",
+    "taskDefinition": "api",
+    "loadBalancers": [
+        {
+            "loadBalancerName": "kit-api",
+            "containerName": "nginx",
+            "containerPort": 80
+        }
+    ],
+    "role": "ecsServiceRole",
+    "desiredCount": 2,
+    "deploymentConfiguration": {
+        "maximumPercent": 100,
+        "minimumHealthyPercent": 50
+    }
+}
