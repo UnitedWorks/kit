@@ -10,11 +10,6 @@
         }
       ],
       "links": ["dashboard:dashboard"],
-      "volumesFrom": [
-        {
-          "sourceContainer": "dashboard"
-        }
-      ],
       "cpu": 256,
       "memory": 100
     },

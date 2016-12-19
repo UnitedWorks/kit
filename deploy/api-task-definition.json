@@ -23,7 +23,8 @@
         }
       ],
       "cpu": 768,
-      "memory": 300
+      "memory": 300,
+      "environment": []
     }
   ],
   "family": "api"
