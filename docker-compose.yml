@@ -7,7 +7,7 @@ services:
       - ./kit_dashboard:/usr/src/kit_dashboard
     ports:
       - '8000:8000'
-    command: 'npm run start-development'
+    command: 'npm run start-local'
 
   api:
     build: ./kit_api
@@ -15,7 +15,7 @@ services:
       - ./kit_api:/usr/src/kit_api
     ports:
       - '5000:5000'
-    command: 'npm run start-development'
+    command: 'npm run start-local'
 
   postgres:
     image: postgres:9.5.4
