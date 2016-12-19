@@ -20,13 +20,13 @@ services:
   postgres:
     image: postgres:9.5.4
     environment:
-      POSTGRES_USER: youmustfight
-      POSTGRES_PASSWORD: leschampselysees
-      POSTGRES_DB: kit_local
+      POSTGRES_DB: kit
+      POSTGRES_USER: kit
+      POSTGRES_PASSWORD: community
     ports:
       - '5432:5432'
-    volumes:
-      - postgres:/var/lib/postgresql/data
-
-volumes:
-  postgres:
+#     volumes:
+#       - postgres:/var/lib/postgresql/data
+#
+# volumes:
+#   postgres:
