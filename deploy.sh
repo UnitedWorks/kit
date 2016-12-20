@@ -1,8 +1,11 @@
+#!/bin/bash
+
 set -e
+
 # //////////////////////////////////////////////////////////////////////////////
 # Variables
 # //////////////////////////////////////////////////////////////////////////////
-KIT_PATH="$HOME/Sites/kit"
+KIT_PATH="$PWD"
 KIT_API_PATH="$KIT_PATH/kit_api"
 KIT_DASHBOARD_PATH="$KIT_PATH/kit_dashboard"
 
@@ -30,39 +33,70 @@ function eval_aws () {
 
 function confirm_command () {
   read -p "Are you sure? [y/n] " -n 1 -r
-  echo    # (optional) move to a new line
-  if [[ $REPLY =~ ^[Nn]$ ]]
+  echo  # move to a new line
+  if [[ $REPLY =~ ^[Yy]$ ]]
   then
+    echo "Running"
+  else
     echo "Aborting"
     return 1
   fi
-  echo "Running"
 }
 
 # //////////////////////////////////////////////////////////////////////////////
 # Build Functions
 # //////////////////////////////////////////////////////////////////////////////
-function docker_compose () {
-  cd "${KIT_PATH}" && docker-compose build && cd -
+
+function stash_work () {
+  STARTING_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+  git stash
+}
+
+function pull_master () {
+  if [[ $STARTING_BRANCH != "master" ]]
+  then
+    git checkout master
+  fi
+  git pull origin master
+}
+
+function unstash_work () {
+  if [[ $STARTING_BRANCH != "master" ]]
+  then
+    git checkout $STARTING_BRANCH
+    git stash apply stash@{0}
+  fi
 }
 
 function build_api () {
-  cd "${KIT_API_PATH}" && docker build -t "${API_IMAGE}:${BUILD}" . && cd -
+  # Stash changes, pull master, build, and then restore changes.
+  cd "${KIT_API_PATH}"
+  stash_work
+  pull_master
+  docker build -t "${API_IMAGE}:${BUILD}" .
+  unstash_work
+  cd -
 }
 
 function build_dashboard () {
-  cd "${KIT_DASHBOARD_PATH}" && docker build -t "${DASHBOARD_IMAGE}:${BUILD}" . && cd -
+  # Stash changes, pull master, build, and then restore changes.
+  cd "${KIT_DASHBOARD_PATH}"
+  stash_work
+  pull_master
+  docker build -t "${DASHBOARD_IMAGE}:${BUILD}" .
+  unstash_work
+  cd -
 }
 
 # //////////////////////////////////////////////////////////////////////////////
 # Push Functions
 # //////////////////////////////////////////////////////////////////////////////
-function push_api () {
+function push_api_image () {
   docker tag "${API_IMAGE}:${BUILD}" "${REGISTRY}/${API_REPO}:${BUILD}"
   docker push "${REGISTRY}/${API_REPO}"
 }
 
-function push_dashboard () {
+function push_dashboard_image () {
   docker tag "${DASHBOARD_IMAGE}:${BUILD}" "${REGISTRY}/${DASHBOARD_REPO}:${BUILD}"
   docker push "${REGISTRY}/${DASHBOARD_REPO}"
 }
@@ -71,30 +105,43 @@ function push_dashboard () {
 # Task/Service Functions
 # //////////////////////////////////////////////////////////////////////////////
 function update_api_task () {
-  cd "${KIT_PATH}" && aws ecs register-task-definition --cli-input-json file://deploy/${API_FAMILY}-task-definition.json
+  cd "${KIT_PATH}"
+  aws ecs register-task-definition --cli-input-json file://deploy/${API_FAMILY}-task-definition.json
+  cd -
 }
 
 function update_api_service () {
-  cd "${KIT_PATH}" && aws ecs update-service --cluster $CLUSTER --service $API_FAMILY --task-definition $API_FAMILY --desired-count $API_COUNT
+  cd "${KIT_PATH}"
+  aws ecs update-service --cluster $CLUSTER --service $API_FAMILY --task-definition $API_FAMILY --desired-count $API_COUNT
+  cd -
 }
 
 function update_dashboard_task () {
-  cd "${KIT_PATH}" && aws ecs register-task-definition --cli-input-json file://deploy/${DASHBOARD_FAMILY}-task-definition.json
+  cd "${KIT_PATH}"
+  aws ecs register-task-definition --cli-input-json file://deploy/${DASHBOARD_FAMILY}-task-definition.json
+  cd -
 }
 
 function update_dashboard_service () {
-  cd "${KIT_PATH}" && aws ecs update-service --cluster $CLUSTER --service $DASHBOARD_FAMILY --task-definition $DASHBOARD_FAMILY --desired-count $DASHBOARD_COUNT
+  cd "${KIT_PATH}"
+  aws ecs update-service --cluster $CLUSTER --service $DASHBOARD_FAMILY --task-definition $DASHBOARD_FAMILY --desired-count $DASHBOARD_COUNT
+  cd -
 }
 
 # //////////////////////////////////////////////////////////////////////////////
 # Database Functions
 # //////////////////////////////////////////////////////////////////////////////
 function migrate_production_db () {
-  cd "${KIT_API_PATH}" && git stash && git checkout master && git pull origin master && npm run migrate-production && cd -
+  cd "${KIT_API_PATH}"
+  stash_work
+  pull_master
+  npm run migrate-production
+  unstash_work
+  cd -
 }
 
 # //////////////////////////////////////////////////////////////////////////////
-# Handle the ARGs
+# Run
 # //////////////////////////////////////////////////////////////////////////////
 while [[ $# > 0 ]]
 do
@@ -103,7 +150,7 @@ case "${1}" in
   confirm_command
   build_api
   eval_aws
-  push_api
+  push_api_image
   update_api_task
   update_api_service
   shift
@@ -112,25 +159,32 @@ case "${1}" in
   confirm_command
   build_dashboard
   eval_aws
-  push_dashboard
+  push_dashboard_image
   update_dashboard_task
   update_dashboard_service
   shift
   ;;
-  --deploy_both)
+  --deploy-application)
   confirm_command
-  docker_compose
+  build_api
+  build_dashboard
   eval_aws
-  push_api
+  push_api_image
   update_api_task
   update_api_service
-  push_dashboard
+  push_dashboard_image
   update_dashboard_task
   update_dashboard_service
+  shift
+  ;;
+  --deploy-frontdoor)
+  confirm_command
+  # Todo
   shift
   ;;
   --migrate-production-db)
   confirm_command
+  # Todo
   shift
   ;;
   *)
