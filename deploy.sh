@@ -141,6 +141,21 @@ function migrate_production_db () {
 }
 
 # //////////////////////////////////////////////////////////////////////////////
+# Test Functions
+# //////////////////////////////////////////////////////////////////////////////
+function test_api () {
+  cd "${KIT_API_PATH}"
+  npm test
+  cd -
+}
+
+function test_dashboard () {
+  cd "${KIT_DASHBOARD_PATH}"
+  npm test
+  cd -
+}
+
+# //////////////////////////////////////////////////////////////////////////////
 # Run
 # //////////////////////////////////////////////////////////////////////////////
 while [[ $# > 0 ]]
@@ -148,6 +163,7 @@ do
 case "${1}" in
   --deploy-api)
   confirm_command
+  test_api
   build_api
   eval_aws
   push_api_image
@@ -156,6 +172,7 @@ case "${1}" in
   shift
   ;;
   --deploy-dashboard)
+  test_dashboard
   confirm_command
   build_dashboard
   eval_aws
@@ -166,6 +183,8 @@ case "${1}" in
   ;;
   --deploy-application)
   confirm_command
+  test_api
+  test_dashboard
   build_api
   build_dashboard
   eval_aws
