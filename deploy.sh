@@ -17,12 +17,10 @@ BUILD="latest"
 API_REPO="kit_api/api"
 API_IMAGE="kit_api"
 API_FAMILY="api"
-API_COUNT=2
 
 DASHBOARD_REPO="kit_dashboard/dashboard"
 DASHBOARD_IMAGE="kit_dashboard"
 DASHBOARD_FAMILY="dashboard"
-DASHBOARD_COUNT=2
 
 # //////////////////////////////////////////////////////////////////////////////
 # Common Functions
@@ -112,7 +110,7 @@ function update_api_task () {
 
 function update_api_service () {
   cd "${KIT_PATH}"
-  aws ecs update-service --cluster $CLUSTER --service $API_FAMILY --task-definition $API_FAMILY --desired-count $API_COUNT
+  aws ecs update-service --cluster $CLUSTER --service $API_FAMILY --task-definition $API_FAMILY
   cd -
 }
 
@@ -124,7 +122,7 @@ function update_dashboard_task () {
 
 function update_dashboard_service () {
   cd "${KIT_PATH}"
-  aws ecs update-service --cluster $CLUSTER --service $DASHBOARD_FAMILY --task-definition $DASHBOARD_FAMILY --desired-count $DASHBOARD_COUNT
+  aws ecs update-service --cluster $CLUSTER --service $DASHBOARD_FAMILY --task-definition $DASHBOARD_FAMILY
   cd -
 }
 
