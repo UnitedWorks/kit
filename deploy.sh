@@ -69,20 +69,32 @@ function unstash_work () {
 function build_api () {
   # Stash changes, pull master, build, and then restore changes.
   cd "${KIT_API_PATH}"
-  stash_work
-  pull_master
+  if [[ $option == "master" ]]
+  then
+    stash_work
+    pull_master
+  fi
   docker build -t "${API_IMAGE}:${BUILD}" .
-  unstash_work
+  if [[ $option == "master" ]]
+  then
+    unstash_work
+  fi
   cd -
 }
 
 function build_dashboard () {
   # Stash changes, pull master, build, and then restore changes.
   cd "${KIT_DASHBOARD_PATH}"
-  stash_work
-  pull_master
+  if [[ $option == "master" ]]
+  then
+    stash_work
+    pull_master
+  fi
   docker build -t "${DASHBOARD_IMAGE}:${BUILD}" .
-  unstash_work
+  if [[ $option == "master" ]]
+  then
+    unstash_work
+  fi
   cd -
 }
 
@@ -104,7 +116,7 @@ function push_dashboard_image () {
 # //////////////////////////////////////////////////////////////////////////////
 function update_api_task () {
   cd "${KIT_PATH}"
-  aws ecs register-task-definition --cli-input-json file://deploy/${API_FAMILY}-task-definition.json
+  aws ecs register-task-definition --cli-input-json file://tools/${API_FAMILY}-task-definition.json
   cd -
 }
 
@@ -116,7 +128,7 @@ function update_api_service () {
 
 function update_dashboard_task () {
   cd "${KIT_PATH}"
-  aws ecs register-task-definition --cli-input-json file://deploy/${DASHBOARD_FAMILY}-task-definition.json
+  aws ecs register-task-definition --cli-input-json file://tools/${DASHBOARD_FAMILY}-task-definition.json
   cd -
 }
 
@@ -158,55 +170,57 @@ function test_dashboard () {
 # //////////////////////////////////////////////////////////////////////////////
 while [[ $# > 0 ]]
 do
-case "${1}" in
-  --deploy-api)
-  confirm_command
-  test_api
-  build_api
-  eval_aws
-  push_api_image
-  update_api_task
-  update_api_service
-  shift
-  ;;
-  --deploy-dashboard)
-  test_dashboard
-  confirm_command
-  build_dashboard
-  eval_aws
-  push_dashboard_image
-  update_dashboard_task
-  update_dashboard_service
-  shift
-  ;;
-  --deploy-application)
-  confirm_command
-  test_api
-  test_dashboard
-  build_api
-  build_dashboard
-  eval_aws
-  push_api_image
-  update_api_task
-  update_api_service
-  push_dashboard_image
-  update_dashboard_task
-  update_dashboard_service
-  shift
-  ;;
-  --deploy-frontdoor)
-  confirm_command
-  # Todo
-  shift
-  ;;
-  --migrate-production-db)
-  confirm_command
-  # Todo
-  shift
-  ;;
-  *)
-  echo "'${1}' is not a valid operation."
-  ;;
+  command=$1
+  option=$2
+  case "${command}" in
+    --deploy-api)
+    confirm_command
+    test_api
+    build_api $option
+    eval_aws
+    push_api_image
+    update_api_task
+    update_api_service
+    shift
+    ;;
+    --deploy-dashboard)
+    test_dashboard
+    confirm_command
+    build_dashboard $option
+    eval_aws
+    push_dashboard_image
+    update_dashboard_task
+    update_dashboard_service
+    shift
+    ;;
+    --deploy-application)
+    confirm_command
+    test_api
+    test_dashboard
+    build_api
+    build_dashboard
+    eval_aws
+    push_api_image
+    update_api_task
+    update_api_service
+    push_dashboard_image
+    update_dashboard_task
+    update_dashboard_service
+    shift
+    ;;
+    --deploy-frontdoor)
+    confirm_command
+    # Todo
+    shift
+    ;;
+    --migrate-production-db)
+    confirm_command
+    # Todo
+    shift
+    ;;
+    *)
+    echo "'${1}' is not a valid operation."
+    ;;
 esac
 shift
 done
