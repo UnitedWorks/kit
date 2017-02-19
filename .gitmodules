@@ -4,3 +4,6 @@
 [submodule "kit_dashboard"]
 	path = kit_dashboard
 	url = git@github.com:UnitedWorks/kit_dashboard
+[submodule "kit_frontdoor"]
+	path = kit_frontdoor
+	url = git@github.com:UnitedWorks/kit_frontdoor
