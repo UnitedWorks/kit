@@ -1,0 +1,6 @@
+[submodule "kit_api"]
+	path = kit_api
+	url = git@github.com:UnitedWorks/kit_api
+[submodule "kit_dashboard"]
+	path = kit_dashboard
+	url = git@github.com:UnitedWorks/kit_dashboard
