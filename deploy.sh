@@ -8,6 +8,7 @@ set -e
 KIT_PATH="$PWD"
 KIT_API_PATH="$KIT_PATH/kit_api"
 KIT_DASHBOARD_PATH="$KIT_PATH/kit_dashboard"
+KIT_FRONTDOOR_PATH="$KIT_PATH/kit_frontdoor"
 
 REGISTRY="188711547141.dkr.ecr.us-east-1.amazonaws.com"
 CLUSTER="kit_production"
@@ -21,6 +22,8 @@ API_FAMILY="api"
 DASHBOARD_REPO="kit_dashboard/dashboard"
 DASHBOARD_IMAGE="kit_dashboard"
 DASHBOARD_FAMILY="dashboard"
+
+FRONTDOOR_BUCKET="kit.community"
 
 # //////////////////////////////////////////////////////////////////////////////
 # Common Functions
@@ -109,6 +112,10 @@ function push_api_image () {
 function push_dashboard_image () {
   docker tag "${DASHBOARD_IMAGE}:${BUILD}" "${REGISTRY}/${DASHBOARD_REPO}:${BUILD}"
   docker push "${REGISTRY}/${DASHBOARD_REPO}"
+}
+
+function push_frontdoor() {
+  aws s3 sync --acl public-read --sse --delete ${KIT_FRONTDOOR_PATH} s3://${FRONTDOOR_BUCKET}
 }
 
 # //////////////////////////////////////////////////////////////////////////////
@@ -210,12 +217,7 @@ do
     ;;
     --deploy-frontdoor)
     confirm_command
-    # Todo
-    shift
-    ;;
-    --migrate-production-db)
-    confirm_command
-    # Todo
+    push_frontdoor
     shift
     ;;
     *)
