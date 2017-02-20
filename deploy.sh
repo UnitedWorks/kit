@@ -24,6 +24,7 @@ DASHBOARD_IMAGE="kit_dashboard"
 DASHBOARD_FAMILY="dashboard"
 
 FRONTDOOR_BUCKET="kit.community"
+FRONTDOOR_CLOUDFRONT_DIST_ID="EKZZ0D4WWS02L"
 
 # //////////////////////////////////////////////////////////////////////////////
 # Common Functions
@@ -116,6 +117,8 @@ function push_dashboard_image () {
 
 function push_frontdoor() {
   aws s3 sync --acl public-read --sse --delete ${KIT_FRONTDOOR_PATH} s3://${FRONTDOOR_BUCKET}
+  aws configure set preview.cloudfront true
+  aws cloudfront create-invalidation --distribution-id ${FRONTDOOR_CLOUDFRONT_DIST_ID} --paths "${KIT_FRONTDOOR_PATH}/*"
 }
 
 # //////////////////////////////////////////////////////////////////////////////
