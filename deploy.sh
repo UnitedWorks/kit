@@ -247,8 +247,8 @@ do
     build_dashboard_nginx
     eval_aws
     push_dashboard_nginx_image
-    update_api_task
-    update_api_service
+    update_dashboard_task
+    update_dashboard_service
     shift
     ;;
     --deploy-frontdoor)
