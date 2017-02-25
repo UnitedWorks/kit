@@ -7,7 +7,9 @@ set -e
 # //////////////////////////////////////////////////////////////////////////////
 KIT_PATH="$PWD"
 KIT_API_PATH="$KIT_PATH/kit_api"
+KIT_API_NGINX_PATH="$KIT_PATH/kit_api_nginx"
 KIT_DASHBOARD_PATH="$KIT_PATH/kit_dashboard"
+KIT_DASHBOARD_NGINX_PATH="$KIT_PATH/kit_dashboard_nginx"
 KIT_FRONTDOOR_PATH="$KIT_PATH/kit_frontdoor"
 
 REGISTRY="188711547141.dkr.ecr.us-east-1.amazonaws.com"
@@ -19,9 +21,15 @@ API_REPO="kit_api/api"
 API_IMAGE="kit_api"
 API_FAMILY="api"
 
+API_NGINX_REPO="kit_api/nginx"
+API_NGINX_IMAGE="kit_api_nginx"
+
 DASHBOARD_REPO="kit_dashboard/dashboard"
 DASHBOARD_IMAGE="kit_dashboard"
 DASHBOARD_FAMILY="dashboard"
+
+DASHBOARD_NGINX_REPO="kit_dashboard/nginx"
+DASHBOARD_NGINX_IMAGE="kit_dashboard_nginx"
 
 FRONTDOOR_BUCKET="kit.community"
 FRONTDOOR_CLOUDFRONT_DIST_ID="EKZZ0D4WWS02L"
@@ -86,6 +94,12 @@ function build_api () {
   cd -
 }
 
+function build_api_nginx () {
+  cd "${KIT_API_NGINX_PATH}"
+  docker build -t "${API_NGINX_IMAGE}:${BUILD}" .
+  cd -
+}
+
 function build_dashboard () {
   # Stash changes, pull master, build, and then restore changes.
   cd "${KIT_DASHBOARD_PATH}"
@@ -102,6 +116,12 @@ function build_dashboard () {
   cd -
 }
 
+function build_dashboard_nginx () {
+  cd "${KIT_DASHBOARD_NGINX_PATH}"
+  docker build -t "${DASHBOARD_NGINX_IMAGE}:${BUILD}" .
+  cd -
+}
+
 # //////////////////////////////////////////////////////////////////////////////
 # Push Functions
 # //////////////////////////////////////////////////////////////////////////////
@@ -110,9 +130,19 @@ function push_api_image () {
   docker push "${REGISTRY}/${API_REPO}"
 }
 
+function push_api_nginx_image () {
+  docker tag "${API_NGINX_IMAGE}:${BUILD}" "${REGISTRY}/${API_NGINX_REPO}:${BUILD}"
+  docker push "${REGISTRY}/${API_NGINX_REPO}"
+}
+
 function push_dashboard_image () {
   docker tag "${DASHBOARD_IMAGE}:${BUILD}" "${REGISTRY}/${DASHBOARD_REPO}:${BUILD}"
   docker push "${REGISTRY}/${DASHBOARD_REPO}"
+}
+
+function push_dashboard_nginx_image () {
+  docker tag "${DASHBOARD_NGINX_IMAGE}:${BUILD}" "${REGISTRY}/${DASHBOARD_NGINX_REPO}:${BUILD}"
+  docker push "${REGISTRY}/${DASHBOARD_NGINX_REPO}"
 }
 
 function push_frontdoor() {
@@ -193,6 +223,15 @@ do
     update_api_service
     shift
     ;;
+    --deploy-api-nginx)
+    confirm_command
+    build_api_nginx
+    eval_aws
+    push_api_nginx_image
+    update_api_task
+    update_api_service
+    shift
+    ;;
     --deploy-dashboard)
     test_dashboard
     confirm_command
@@ -203,19 +242,13 @@ do
     update_dashboard_service
     shift
     ;;
-    --deploy-application)
+    --deploy-dashboard-nginx)
     confirm_command
-    test_api
-    test_dashboard
-    build_api
-    build_dashboard
+    build_dashboard_nginx
     eval_aws
-    push_api_image
+    push_dashboard_nginx_image
     update_api_task
     update_api_service
-    push_dashboard_image
-    update_dashboard_task
-    update_dashboard_service
     shift
     ;;
     --deploy-frontdoor)
