@@ -23,7 +23,8 @@
         }
       ],
       "cpu": 768,
-      "memory": 300,
+      "memory": 600,
+      "memoryReservation": 300,
       "environment": []
     }
   ],
