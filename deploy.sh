@@ -32,7 +32,7 @@ DASHBOARD_NGINX_REPO="kit_dashboard/nginx"
 DASHBOARD_NGINX_IMAGE="kit_dashboard_nginx"
 
 FRONTDOOR_BUCKET="kit.community"
-FRONTDOOR_CLOUDFRONT_DIST_ID="EKZZ0D4WWS02L"
+FRONTDOOR_CLOUDFRONT_DIST_ID="E1BJ6HA10GA3H1"
 
 # //////////////////////////////////////////////////////////////////////////////
 # Common Functions
@@ -148,7 +148,7 @@ function push_dashboard_nginx_image () {
 function push_frontdoor() {
   aws s3 sync --acl public-read --sse --delete ${KIT_FRONTDOOR_PATH} s3://${FRONTDOOR_BUCKET}
   aws configure set preview.cloudfront true
-  aws cloudfront create-invalidation --distribution-id ${FRONTDOOR_CLOUDFRONT_DIST_ID} --paths "${KIT_FRONTDOOR_PATH}/*"
+  aws cloudfront create-invalidation --distribution-id ${FRONTDOOR_CLOUDFRONT_DIST_ID} --paths "/*"
 }
 
 # //////////////////////////////////////////////////////////////////////////////
