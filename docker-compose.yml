@@ -18,7 +18,7 @@ services:
     command: 'npm run start-local'
 
   postgres:
-    image: postgres:9.5.4
+    image: postgres:9.6.2
     environment:
       POSTGRES_DB: kit
       POSTGRES_USER: kit
