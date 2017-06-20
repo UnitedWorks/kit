@@ -7,3 +7,6 @@
 [submodule "kit_frontdoor"]
 	path = kit_frontdoor
 	url = git@github.com:UnitedWorks/kit_frontdoor.git
+[submodule "kit_chat"]
+	path = kit_chat
+	url = git@github.com:UnitedWorks/kit_chat.git
