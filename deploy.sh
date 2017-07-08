@@ -11,6 +11,7 @@ KIT_API_NGINX_PATH="$KIT_PATH/kit_api_nginx"
 KIT_DASHBOARD_PATH="$KIT_PATH/kit_dashboard"
 KIT_DASHBOARD_NGINX_PATH="$KIT_PATH/kit_dashboard_nginx"
 KIT_FRONTDOOR_PATH="$KIT_PATH/kit_frontdoor"
+KIT_CHAT_PATH="$KIT_PATH/kit_chat/build"
 
 REGISTRY="188711547141.dkr.ecr.us-east-1.amazonaws.com"
 CLUSTER="kit_production"
@@ -33,6 +34,8 @@ DASHBOARD_NGINX_IMAGE="kit_dashboard_nginx"
 
 FRONTDOOR_BUCKET="kit.community"
 FRONTDOOR_CLOUDFRONT_DIST_ID="E1BJ6HA10GA3H1"
+
+CHAT_BUCKET="chat.kit.community"
 
 # //////////////////////////////////////////////////////////////////////////////
 # Common Functions
@@ -151,6 +154,10 @@ function push_frontdoor() {
   aws cloudfront create-invalidation --distribution-id ${FRONTDOOR_CLOUDFRONT_DIST_ID} --paths "/*"
 }
 
+function push_chat() {
+  aws s3 sync --acl public-read --sse --delete ${KIT_CHAT_PATH} s3://${CHAT_BUCKET}
+}
+
 # //////////////////////////////////////////////////////////////////////////////
 # Task/Service Functions
 # //////////////////////////////////////////////////////////////////////////////
@@ -254,6 +261,11 @@ do
     --deploy-frontdoor)
     confirm_command
     push_frontdoor
+    shift
+    ;;
+    --deploy-chat)
+    confirm_command
+    push_chat
     shift
     ;;
     *)
