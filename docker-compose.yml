@@ -17,6 +17,14 @@ services:
       - '5000:5000'
     command: 'npm run start-local'
 
+  chat:
+    build: ./kit_chat
+    volumes:
+      - ./kit_chat:/usr/src/kit_chat
+    ports:
+      - '3000:3000'
+    command: 'npm start'
+
   postgres:
     image: postgres:9.6.2
     environment:
