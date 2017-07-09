@@ -36,6 +36,7 @@ FRONTDOOR_BUCKET="kit.community"
 FRONTDOOR_CLOUDFRONT_DIST_ID="E1BJ6HA10GA3H1"
 
 CHAT_BUCKET="chat.kit.community"
+CHAT_CLOUDFRONT_DIST_ID="E19W7KF2EJXWRD"
 
 # //////////////////////////////////////////////////////////////////////////////
 # Common Functions
@@ -156,6 +157,8 @@ function push_frontdoor() {
 
 function push_chat() {
   aws s3 sync --acl public-read --sse --delete ${KIT_CHAT_PATH} s3://${CHAT_BUCKET}
+  aws configure set preview.cloudfront true
+  aws cloudfront create-invalidation --distribution-id ${CHAT_CLOUDFRONT_DIST_ID} --paths "/*"
 }
 
 # //////////////////////////////////////////////////////////////////////////////
