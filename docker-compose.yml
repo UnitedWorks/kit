@@ -24,7 +24,6 @@ services:
     ports:
       - '3000:3000'
     command: 'npm start'
-
   postgres:
     image: postgres:9.6.2
     environment:
@@ -33,3 +32,9 @@ services:
       POSTGRES_PASSWORD: community
     ports:
       - '5432:5432'
+  rabbitmq: 
+    image: rabbitmq:3.6-management
+    hostname: kit-rabbit
+    ports: 
+      - '5672:5672'
+      - '15672:15672'
