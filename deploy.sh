@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 # //////////////////////////////////////////////////////////////////////////////
 # Variables
 # //////////////////////////////////////////////////////////////////////////////
@@ -42,7 +40,16 @@ CHAT_CLOUDFRONT_DIST_ID="E19W7KF2EJXWRD"
 # Common Functions
 # //////////////////////////////////////////////////////////////////////////////
 function eval_aws () {
-  eval "$(aws ecr get-login)"
+  # When I updated docker, the -e flag started throwing an error
+  AWS_EVAL_COMMAND=""
+  for word in $(aws ecr get-login)
+  do
+    if [[ $word != "-e" && $word != "none" ]]
+      then
+          AWS_EVAL_COMMAND="${AWS_EVAL_COMMAND} ${word}"
+    fi
+  done
+  eval "${AWS_EVAL_COMMAND}"
 }
 
 function confirm_command () {
@@ -277,3 +284,5 @@ do
 esac
 shift
 done
+
+set -e
